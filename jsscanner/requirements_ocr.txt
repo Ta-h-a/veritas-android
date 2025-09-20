@@ -1,0 +1,16 @@
+# Samsung Electronics India OCR Requirements
+# Flask web framework and extensions
+Flask==2.3.3
+Werkzeug==2.3.7
+
+# Image processing libraries
+Pillow==10.0.1
+opencv-python==4.8.1.78
+numpy==1.24.3
+
+# OCR libraries
+pytesseract==0.3.10
+
+# Optional: For better image processing
+scikit-image==0.21.0
+matplotlib==3.7.2

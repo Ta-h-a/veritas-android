@@ -1,0 +1,67 @@
+[
+  {
+    "route": "/interface",
+    "methods": ["GET"],
+    "description": "Main barcode scanner interface (Quagga.js live camera)."
+  },
+  {
+    "route": "/priority",
+    "methods": ["GET"],
+    "description": "Samsung priority-optimized scanner (Tier 1, 2, 3 system)."
+  },
+  {
+    "route": "/code128",
+    "methods": ["GET"],
+    "description": "Specialized Code-128 scanner for QR-like and supply chain barcodes."
+  },
+  {
+    "route": "/zxing",
+    "methods": ["GET"],
+    "description": "Professional Samsung ZXing scanner (multi-format, desktop)."
+  },
+  {
+    "route": "/zxing/mobile",
+    "methods": ["GET"],
+    "description": "Mobile-optimized ZXing scanner (touch-friendly, camera)."
+  },
+  {
+    "route": "/static/quagga",
+    "methods": ["GET"],
+    "description": "Static image barcode scanner using Quagga.js (upload image)."
+  },
+  {
+    "route": "/static/zxing",
+    "methods": ["GET"],
+    "description": "Static image barcode scanner using ZXing (upload image)."
+  },
+  {
+    "route": "/ocr/pytesseract/",
+    "methods": ["GET"],
+    "description": "OCR sticker text extraction interface using Pytesseract."
+  },
+  {
+    "route": "/ocr/pytesseract/upload",
+    "methods": ["POST"],
+    "description": "Upload image and extract text using Pytesseract."
+  },
+  {
+    "route": "/ocr/pytesseract/health",
+    "methods": ["GET"],
+    "description": "Health check for Pytesseract OCR service."
+  },
+  {
+    "route": "/ocr/opencv/",
+    "methods": ["GET"],
+    "description": "OCR sticker text extraction interface using OpenCV."
+  },
+  {
+    "route": "/ocr/opencv/upload",
+    "methods": ["POST"],
+    "description": "Upload image and extract text using OpenCV."
+  },
+  {
+    "route": "/ocr/opencv/health",
+    "methods": ["GET"],
+    "description": "Health check for OpenCV OCR service."
+  }
+]

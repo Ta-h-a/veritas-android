@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Mobile Barcode Scanner</title>
+    
+    <!-- QuaggaJS - Known to work well on mobile -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #000;
+            color: #fff;
+            overflow: hidden;
+        }
+
+        .scanner-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            background: #000;
+        }
+
+        #scanner {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            background: #000;
+        }
+
+        #scanner canvas,
+        #scanner video {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .scan-area {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 280px;
+            height: 80px;
+            border: 3px solid #00ff00;
+            border-radius: 8px;
+            background: rgba(0, 255, 0, 0.1);
+        }
+
+        .scan-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #00ff00, transparent);
+            animation: scan 2s ease-in-out infinite;
+        }
+
+        @keyframes scan {
+            0% { top: 0; opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { top: 100%; opacity: 1; }
+        }
+
+        .controls {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            z-index: 20;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            min-width: 100px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-start {
+            background: rgba(16, 185, 129, 0.9);
+            color: white;
+        }
+
+        .btn-stop {
+            background: rgba(239, 68, 68, 0.9);
+            color: white;
+        }
+
+        .btn-clear {
+            background: rgba(245, 158, 11, 0.9);
+            color: white;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .status {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            z-index: 20;
+            backdrop-filter: blur(10px);
+        }
+
+        .result-popup {
+            position: absolute;
+            top: 80px;
+            left: 20px;
+            right: 20px;
+            background: rgba(16, 185, 129, 0.95);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            transform: translateY(-100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 30;
+            backdrop-filter: blur(10px);
+        }
+
+        .result-popup.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .barcode-text {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 16px;
+            margin: 5px 0;
+            word-break: break-all;
+        }
+
+        .result-count {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            z-index: 20;
+            backdrop-filter: blur(10px);
+        }
+
+        @media (max-width: 480px) {
+            .scan-area {
+                width: 250px;
+                height: 70px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 80%;
+                max-width: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="scanner-container">
+        <div id="scanner"></div>
+        
+        <div class="overlay">
+            <div class="scan-area">
+                <div class="scan-line"></div>
+            </div>
+        </div>
+        
+        <div class="status" id="status">
+            📱 Mobile Barcode Scanner Ready
+        </div>
+        
+        <div class="result-count" id="resultCount">
+            0 scanned
+        </div>
+        
+        <div class="result-popup" id="resultPopup">
+            <div id="resultText"></div>
+        </div>
+        
+        <div class="controls">
+            <button class="btn btn-start" id="startBtn">📸 Start</button>
+            <button class="btn btn-stop" id="stopBtn" disabled>⏹️ Stop</button>
+            <button class="btn btn-clear" id="clearBtn">🗑️ Clear</button>
+        </div>
+    </div>
+
+    <script>
+        class MobileBarcodeScanner {
+            constructor() {
+                this.isScanning = false;
+                this.scannedCodes = new Set();
+                this.results = [];
+                
+                this.initializeElements();
+                this.bindEvents();
+                this.checkMobileEnvironment();
+            }
+            
+            initializeElements() {
+                this.scanner = document.getElementById('scanner');
+                this.startBtn = document.getElementById('startBtn');
+                this.stopBtn = document.getElementById('stopBtn');
+                this.clearBtn = document.getElementById('clearBtn');
+                this.status = document.getElementById('status');
+                this.resultPopup = document.getElementById('resultPopup');
+                this.resultText = document.getElementById('resultText');
+                this.resultCount = document.getElementById('resultCount');
+            }
+            
+            bindEvents() {
+                this.startBtn.addEventListener('click', () => this.startScanning());
+                this.stopBtn.addEventListener('click', () => this.stopScanning());
+                this.clearBtn.addEventListener('click', () => this.clearResults());
+                
+                // Prevent zoom on double tap
+                document.addEventListener('touchstart', (e) => {
+                    if (e.touches.length > 1) {
+                        e.preventDefault();
+                    }
+                });
+                
+                let lastTouchEnd = 0;
+                document.addEventListener('touchend', (e) => {
+                    const now = (new Date()).getTime();
+                    if (now - lastTouchEnd <= 300) {
+                        e.preventDefault();
+                    }
+                    lastTouchEnd = now;
+                }, false);
+            }
+            
+            checkMobileEnvironment() {
+                const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                
+                if (!isMobile) {
+                    this.updateStatus('⚠️ Designed for mobile devices');
+                }
+                
+                if (typeof Quagga === 'undefined') {
+                    this.updateStatus('❌ Scanner library not loaded');
+                    this.startBtn.disabled = true;
+                    return false;
+                }
+                
+                if (!navigator.mediaDevices?.getUserMedia) {
+                    this.updateStatus('❌ Camera not supported');
+                    this.startBtn.disabled = true;
+                    return false;
+                }
+                
+                if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+                    this.updateStatus('🔒 HTTPS required for camera');
+                    this.startBtn.disabled = true;
+                    return false;
+                }
+                
+                this.updateStatus('✅ Ready to scan barcodes');
+                return true;
+            }
+            
+            async startScanning() {
+                try {
+                    this.updateStatus('📱 Starting mobile scanner...');
+                    this.startBtn.disabled = true;
+                    
+                    // Mobile-optimized Quagga configuration
+                    await new Promise((resolve, reject) => {
+                        Quagga.init({
+                            inputStream: {
+                                name: "Live",
+                                type: "LiveStream",
+                                target: this.scanner,
+                                constraints: {
+                                    facingMode: "environment",
+                                    width: { ideal: 640, max: 1280 },
+                                    height: { ideal: 480, max: 720 }
+                                }
+                            },
+                            locator: {
+                                patchSize: "medium",
+                                halfSample: true
+                            },
+                            numOfWorkers: 2,
+                            frequency: 10,
+                            decoder: {
+                                readers: [
+                                    "code_128_reader",
+                                    "ean_reader",
+                                    "ean_8_reader",
+                                    "code_39_reader",
+                                    "code_93_reader",
+                                    "upc_reader",
+                                    "upc_e_reader",
+                                    "i2of5_reader"
+                                ],
+                                multiple: false
+                            },
+                            locate: true,
+                            debug: false
+                        }, (err) => {
+                            if (err) {
+                                reject(err);
+                                return;
+                            }
+                            
+                            Quagga.start();
+                            this.isScanning = true;
+                            this.startBtn.disabled = true;
+                            this.stopBtn.disabled = false;
+                            
+                            Quagga.onDetected((result) => {
+                                this.onBarcodeDetected(result);
+                            });
+                            
+                            resolve();
+                        });
+                    });
+                    
+                    this.updateStatus('🎯 Scanner active - point at barcode');
+                    
+                } catch (error) {
+                    console.error('Scanner error:', error);
+                    this.updateStatus(`❌ ${error.message}`);
+                    this.startBtn.disabled = false;
+                }
+            }
+            
+            onBarcodeDetected(result) {
+                const code = result.codeResult.code;
+                const format = result.codeResult.format;
+                
+                // Basic validation
+                if (!code || code.length < 2) return;
+                
+                // Check duplicates
+                if (this.scannedCodes.has(code)) return;
+                
+                // Add to results
+                this.scannedCodes.add(code);
+                this.results.push({
+                    code: code,
+                    format: format,
+                    timestamp: new Date()
+                });
+                
+                // Show result popup
+                this.showResult(code, format);
+                
+                // Update count
+                this.resultCount.textContent = `${this.results.length} scanned`;
+                
+                // Vibrate if available
+                if (navigator.vibrate) {
+                    navigator.vibrate(200);
+                }
+                
+                // Play sound
+                this.playBeep();
+            }
+            
+            showResult(code, format) {
+                const displayCode = code.length > 30 ? code.substring(0, 30) + '...' : code;
+                this.resultText.innerHTML = `
+                    <div class="barcode-text">${displayCode}</div>
+                    <div>Format: ${format.replace('_reader', '').toUpperCase()}</div>
+                `;
+                
+                this.resultPopup.classList.add('show');
+                
+                setTimeout(() => {
+                    this.resultPopup.classList.remove('show');
+                }, 3000);
+            }
+            
+            stopScanning() {
+                if (this.isScanning) {
+                    Quagga.stop();
+                    this.isScanning = false;
+                    this.startBtn.disabled = false;
+                    this.stopBtn.disabled = true;
+                    this.updateStatus('⏹️ Scanner stopped');
+                }
+            }
+            
+            clearResults() {
+                if (confirm('Clear all results?')) {
+                    this.results = [];
+                    this.scannedCodes.clear();
+                    this.resultCount.textContent = '0 scanned';
+                    this.updateStatus('🗑️ Results cleared');
+                }
+            }
+            
+            updateStatus(message) {
+                this.status.textContent = message;
+            }
+            
+            playBeep() {
+                try {
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.frequency.value = 800;
+                    oscillator.type = 'sine';
+                    
+                    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+                    
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.2);
+                } catch (e) {
+                    // Audio context not available
+                }
+            }
+        }
+        
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new MobileBarcodeScanner();
+        });
+    </script>
+</body>
+</html>
