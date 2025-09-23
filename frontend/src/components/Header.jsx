@@ -1,4 +1,5 @@
 import React from "react";
+import { ScanLine, List } from "lucide-react";
 import styles from "./Header.module.css";
 
 const SUPPORTED_FORMATS = [
@@ -15,15 +16,20 @@ const SUPPORTED_FORMATS = [
 function Header() {
   return (
     <div className={styles.header}>
-      <h1 className={styles.title}>🔍 Samsung ZXing Image Scanner</h1>
-      <p>Advanced static image barcode analysis using ZXing library</p>
-      <div className={styles.techBadge}>ZXing MultiFormatReader</div>
+      <h1 className={`${styles.title} heading`}>
+        <ScanLine className={styles.titleIcon} />
+        Samsung ZXing Image Scanner
+      </h1>
+      <div className={`${styles.techBadge} text`}>ZXing MultiFormatReader</div>
 
       <div className={styles.formatSupport}>
-        <strong>📋 Supported Formats:</strong>
+        <strong className="subheading">
+          <List className={styles.listIcon} />
+          Supported Formats:
+        </strong>
         <div className={styles.formatList}>
           {SUPPORTED_FORMATS.map((fmt) => (
-            <span key={fmt} className={styles.formatTag}>
+            <span key={fmt} className={`${styles.formatTag} text`}>
               {fmt}
             </span>
           ))}

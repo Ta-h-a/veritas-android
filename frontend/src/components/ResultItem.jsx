@@ -1,4 +1,5 @@
 import React from "react";
+import { Flag, Smartphone } from "lucide-react";
 import styles from "./ResultItem.module.css";
 
 function ResultItem({ result }) {
@@ -33,21 +34,21 @@ function ResultItem({ result }) {
 
   return (
     <div className={getTierClassName()}>
-      <div className={styles.barcodeCode}>{result.code}</div>
+      <div className={`${styles.barcodeCode} subheading`}>{result.code}</div>
       <div className={styles.barcodeMeta}>
-        <div className={styles.metaItem}>
+        <div className={`${styles.metaItem} text`}>
           <span className={styles.metaLabel}>Format:</span>
           {result.priority.name}
         </div>
-        <div className={styles.metaItem}>
+        <div className={`${styles.metaItem} text`}>
           <span className={styles.metaLabel}>Tier:</span>
           {result.priority.tier} ({result.priority.priority})
         </div>
-        <div className={styles.metaItem}>
+        <div className={`${styles.metaItem} text`}>
           <span className={styles.metaLabel}>Confidence:</span>
           {result.confidence}%
         </div>
-        <div className={styles.metaItem}>
+        <div className={`${styles.metaItem} text`}>
           <span className={styles.metaLabel}>Engine:</span>
           ZXing MultiFormatReader
         </div>
@@ -56,19 +57,23 @@ function ResultItem({ result }) {
         <>
           <div className={styles.validationBadges}>
             {result.validation.isIndiaProduct && (
-              <span className={getBadgeClassName('india')}>🇮🇳 INDIA</span>
+              <span className={`${getBadgeClassName('india')} text`}>
+                <Flag className={styles.badgeIcon} /> INDIA
+              </span>
             )}
             {result.validation.isSamsung && (
-              <span className={getBadgeClassName('samsung')}>📱 SAMSUNG</span>
+              <span className={`${getBadgeClassName('samsung')} text`}>
+                <Smartphone className={styles.badgeIcon} /> SAMSUNG
+              </span>
             )}
-            <span className={getBadgeClassName(`tier${result.priority.tier}`)}>
+            <span className={`${getBadgeClassName(`tier${result.priority.tier}`)} text`}>
               TIER {result.priority.tier}
             </span>
             {result.format === "QR_CODE" && (
-              <span className={getBadgeClassName('qr')}>QR</span>
+              <span className={`${getBadgeClassName('qr')} text`}>QR</span>
             )}
           </div>
-          <div className={styles.validationMessages}>
+          <div className={`${styles.validationMessages} text`}>
             {result.validation.messages.join(" • ")}
           </div>
         </>

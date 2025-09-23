@@ -1,4 +1,5 @@
 import React, { useState, useRef } from "react";
+import { ImageIcon, FolderOpen, ScanLine, Trash2 } from "lucide-react";
 import styles from "./ImageUploader.module.css";
 
 function ImageUploader({ 
@@ -63,11 +64,13 @@ function ImageUploader({
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
       >
-        <div className={styles.uploadIcon}>🖼️</div>
-        <div className={styles.uploadText}>
+        <div className={styles.uploadIcon}>
+          <ImageIcon />
+        </div>
+        <div className={`${styles.uploadText} subheading`}>
           Upload barcode image for ZXing analysis
         </div>
-        <div className={styles.uploadHint}>
+        <div className={`${styles.uploadHint} text`}>
           Click here or drag and drop image files
           <br />
           Supports: JPG, PNG, WEBP, BMP, GIF
@@ -85,18 +88,21 @@ function ImageUploader({
       />
 
       <div className={styles.controls}>
-        <button className={`${styles.btn} ${styles.btnPrimary}`} onClick={handleUploadClick}>
-          📂 Choose Images
+        <button className={`${styles.btn} ${styles.btnPrimary} text`} onClick={handleUploadClick}>
+          <FolderOpen className={styles.buttonIcon} />
+          Choose Images
         </button>
         <button
-          className={`${styles.btn} ${styles.btnSecondary}`}
+          className={`${styles.btn} ${styles.btnSecondary} text`}
           onClick={onScan}
           disabled={!uploadedImage || processing}
         >
-          🔍 Analyze with ZXing
+          <ScanLine className={styles.buttonIcon} />
+          Analyze with ZXing
         </button>
-        <button className={`${styles.btn} ${styles.btnWarning}`} onClick={onClear}>
-          🗑️ Clear Results
+        <button className={`${styles.btn} ${styles.btnWarning} text`} onClick={onClear}>
+          <Trash2 className={styles.buttonIcon} />
+          Clear Results
         </button>
       </div>
 
@@ -111,11 +117,11 @@ function ImageUploader({
       {processing && (
         <div className={`${styles.processingIndicator} ${styles.visible}`}>
           <div className={styles.spinner}></div>
-          <span>Analyzing image with ZXing MultiFormatReader...</span>
+          <span className="text">Analyzing image with ZXing MultiFormatReader...</span>
         </div>
       )}
 
-      <div className={getStatusClassName()}>
+      <div className={`${getStatusClassName()} text`}>
         {status}
       </div>
     </div>

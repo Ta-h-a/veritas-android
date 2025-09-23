@@ -1,20 +1,34 @@
 /* This file can be used to export any shared style utilities or constants */
 
-/* Color variables */
+/* New Color Palette */
 :root {
-  --primary-gradient: linear-gradient(135deg, #667eea, #764ba2);
-  --primary-color: #667eea;
-  --secondary-color: #764ba2;
-  --success-color: #10b981;
-  --warning-color: #f59e0b;
-  --error-color: #dc2626;
-  --text-primary: #1f2937;
-  --text-secondary: #6b7280;
+  /* Base color palette */
+  --barn-red: #780000;
+  --fire-brick: #c1121f;
+  --papaya-whip: #fdf0d5;
+  --prussian-blue: #003049;
+  --air-superiority-blue: #669bbc;
+  
+  /* Highlight colors */
+  --highlight-dark: #272757;      /* Deep purple-blue for headers, important text */
+  --highlight-medium: #8686AC;    /* Medium purple-gray for secondary elements */
+  --highlight-accent: #505081;    /* Purple-blue for accents, borders */
+  --highlight-deepest: #0F0E47;   /* Deepest blue-purple for primary text, emphasis */
+
+  /* Semantic color mapping */
+  --primary-color: var(--highlight-accent);
+  --secondary-color: var(--highlight-dark);
+  --primary-gradient: linear-gradient(135deg, var(--highlight-medium), var(--highlight-deepest));
+  --success-color: var(--air-superiority-blue);
+  --warning-color: var(--fire-brick);
+  --error-color: var(--barn-red);
+  --text-primary: var(--highlight-deepest);
+  --text-secondary: var(--highlight-medium);
   --bg-white: #ffffff;
-  --bg-light: #f9fafb;
-  --border-light: #e5e7eb;
-  --shadow-light: 0 4px 12px rgba(0, 0, 0, 0.1);
-  --shadow-medium: 0 10px 25px rgba(0, 0, 0, 0.1);
+  --bg-light: #fafafa;
+  --border-light: rgba(80, 80, 129, 0.2);
+  --shadow-light: 0 4px 12px rgba(15, 14, 71, 0.1);
+  --shadow-medium: 0 10px 25px rgba(15, 14, 71, 0.15);
 }
 
 /* Utility classes */

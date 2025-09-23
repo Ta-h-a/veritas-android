@@ -2,6 +2,7 @@ import React from "react";
 import { useBarcodeScanner } from "./hooks";
 import { Header, StatsBar, ImageUploader, ResultsList } from "./components";
 import "./styles/global.css";
+import "./styles/utilities.css"
 
 function App() {
   const {

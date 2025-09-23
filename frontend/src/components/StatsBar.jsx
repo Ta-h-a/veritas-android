@@ -13,8 +13,8 @@ function StatsBar({ stats }) {
     <div className={styles.statsBar}>
       {statItems.map((stat, index) => (
         <div key={index} className={styles.statCard}>
-          <div className={styles.statValue}>{stat.value}</div>
-          <div className={styles.statLabel}>{stat.label}</div>
+          <div className={`${styles.statValue} heading`}>{stat.value}</div>
+          <div className={`${styles.statLabel} text`}>{stat.label}</div>
         </div>
       ))}
     </div>

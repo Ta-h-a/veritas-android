@@ -23,3 +23,36 @@ body {
     padding: 10px;
   }
 }
+
+/* Heading */
+.heading {
+  font-size: 2rem; /* text-4xl */
+}
+
+@media (min-width: 768px) { /* md breakpoint */
+  .heading {
+    font-size: 2.25rem; /* text-5xl */
+  }
+}
+
+/* Subheading */
+.subheading {
+  font-size: 1.25rem; /* text-xl */
+}
+
+@media (min-width: 768px) {
+  .subheading {
+    font-size: 1.5rem; /* text-2xl */
+  }
+}
+
+/* Text */
+.text {
+  font-size: 0.875rem; /* text-sm */
+}
+
+@media (min-width: 768px) {
+  .text {
+    font-size: 1rem; /* text-base */
+  }
+}

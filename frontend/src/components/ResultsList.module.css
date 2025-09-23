@@ -8,9 +8,16 @@
 
 .title {
   margin-bottom: 20px;
-  font-size: 20px;
   font-weight: 600;
   color: #1f2937;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.titleIcon {
+  width: 20px;
+  height: 20px;
 }
 
 .emptyState {
