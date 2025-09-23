@@ -1,0 +1,1 @@
+export { BARCODE_PRIORITIES } from './barCodePriorities';
