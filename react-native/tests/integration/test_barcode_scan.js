@@ -1,3 +1,5 @@
+//react-native/tests/integration/test_barcode_scan.js
+
 import { render, fireEvent } from '@testing-library/react-native';
 // Mock the barcode scanner
 jest.mock('expo-barcode-scanner', () => ({

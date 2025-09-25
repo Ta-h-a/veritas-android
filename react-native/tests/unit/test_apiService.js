@@ -1,3 +1,5 @@
+//react-native/tests/unit/test_apiService.js
+
 const { registerDevice } = require('../../app/services/apiService');
 
 jest.mock('axios');

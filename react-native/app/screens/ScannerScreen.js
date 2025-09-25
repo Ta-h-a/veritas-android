@@ -1,3 +1,5 @@
+//react-native/app/screens/ScannerScreen.js
+
 import React, { useState, useEffect } from 'react';
 import { View, Text, Button } from 'react-native';
 import { BarCodeScanner } from 'expo-barcode-scanner';

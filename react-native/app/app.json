@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Prism React Mobile",
-    "slug": "prism-react-mobile",
+    "name": "Veritas Device App",
+    "slug": "veritas-device-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -15,16 +15,31 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "This app needs access to camera to scan barcodes and take device photos.",
+        "NSPhotoLibraryUsageDescription": "This app needs access to photo library to select device images."
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      }
+        "backgroundColor": "#FFFFFF"
+      },
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "apiUrl": "http://192.168.1.100:3001/api/v1"
+    },
+    "plugins": [
+      "expo-secure-store"
+    ]
   }
 }

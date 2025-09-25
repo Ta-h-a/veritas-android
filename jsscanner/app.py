@@ -33,7 +33,7 @@ def code128():
 
 @app.route('/zxing',methods=['GET'])
 def zxing():
-    return render_template('zxing/samsung_scanner.html')
+    return render_template('templates/zxing/samsung_scanner.html')
 
 @app.route('/zxing/mobile',methods=['GET'])
 def zxing_mobile():

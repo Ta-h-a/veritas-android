@@ -1,3 +1,5 @@
+///Users/aryangupta/Developer/veritas-android/react-native/app/screens/ImageCaptureScreen.js
+
 import React, { useState } from 'react';
 import { View, Button, Image } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';

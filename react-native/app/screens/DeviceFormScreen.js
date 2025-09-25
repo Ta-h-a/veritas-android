@@ -1,3 +1,5 @@
+//react-native/app/screens/DeviceFormScreen.js
+
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button } from 'react-native';
 import useStore from '../services/store';

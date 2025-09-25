@@ -1,3 +1,6 @@
+//react-native/api/models/user.js
+
+
 const express = require('express');
 const router = express.Router();
 const { authenticate } = require('../middleware/auth');
@@ -9,7 +12,7 @@ const Submission = require('../models/submission');
 let devices = [];
 let submissions = [];
 
-router.post('/', authenticate, validateDeviceRegistration, async (req, res) => {
+router.post('/',validateDeviceRegistration, async (req, res) => {
   try {
     const { encryptedData, signature, userId } = req.body;
     
@@ -33,7 +36,7 @@ router.post('/', authenticate, validateDeviceRegistration, async (req, res) => {
   }
 });
 
-router.get('/', authenticate, (req, res) => {
+router.get('/', (req, res) => {
   // Filter by status if provided
   let filteredDevices = devices;
   if (req.query.status) {
@@ -42,7 +45,7 @@ router.get('/', authenticate, (req, res) => {
   res.json({ devices: filteredDevices, total: filteredDevices.length });
 });
 
-router.post('/:id/verify', authenticate, (req, res) => {
+router.post('/:id/verify', (req, res) => {
   const device = devices.find(d => d.id === req.params.id);
   if (!device) {
     return res.status(404).json({ error: 'Device not found' });
