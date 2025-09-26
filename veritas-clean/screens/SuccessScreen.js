@@ -5,15 +5,15 @@ import { View, Text, Button, StyleSheet } from 'react-native';
 
 export default function SuccessScreen({ navigation }) {
   const handleStartOver = () => {
-    // Reset to scanner screen
+    // Reset to welcome screen to maintain proper flow
     navigation.reset({
       index: 0,
-      routes: [{ name: 'Scanner' }],
+      routes: [{ name: 'Welcome' }],
     });
   };
 
-  const handleAdminDashboard = () => {
-    navigation.navigate('AdminDashboard');
+  const handleGoHome = () => {
+    navigation.navigate('Welcome');
   };
 
   return (
@@ -22,8 +22,10 @@ export default function SuccessScreen({ navigation }) {
         <Text style={styles.successIcon}>✅</Text>
         <Text style={styles.title}>Device Registered Successfully!</Text>
         <Text style={styles.message}>
-          Your device has been registered and submitted for verification.
+          Your device has been registered and submitted for verification. 
+          An administrator will review and approve your submission.
         </Text>
+        
         <View style={styles.buttonContainer}>
           <Button 
             title="Register Another Device" 
@@ -31,11 +33,12 @@ export default function SuccessScreen({ navigation }) {
             color="#4CAF50"
           />
         </View>
+        
         <View style={styles.buttonContainer}>
           <Button 
-            title="📋 Admin Dashboard" 
-            onPress={handleAdminDashboard}
-            color="#FF9800"
+            title="Go to Home" 
+            onPress={handleGoHome}
+            color="#2196F3"
           />
         </View>
       </View>

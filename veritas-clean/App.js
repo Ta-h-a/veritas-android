@@ -5,6 +5,8 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, View } from 'react-native';
 
 // Import your screens
+import WelcomeScreen from './screens/WelcomeScreen';
+import AdminLoginScreen from './screens/AdminLoginScreen';
 import ScannerScreen from './screens/ScannerScreen';
 import DeviceFormScreen from './screens/DeviceFormScreen';  
 import ImageCaptureScreen from './screens/ImageCaptureScreen';
@@ -18,7 +20,7 @@ export default function App() {
     <View style={styles.container}>
       <NavigationContainer>
         <Stack.Navigator
-          initialRouteName="Scanner"
+          initialRouteName="Welcome"
           screenOptions={{
             headerStyle: {
               backgroundColor: '#2196F3',
@@ -29,6 +31,16 @@ export default function App() {
             },
           }}
         >
+          <Stack.Screen 
+            name="Welcome" 
+            component={WelcomeScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen 
+            name="AdminLogin" 
+            component={AdminLoginScreen}
+            options={{ headerShown: false }}
+          />
           <Stack.Screen 
             name="Scanner" 
             component={ScannerScreen}
