@@ -9,6 +9,7 @@ import ScannerScreen from './screens/ScannerScreen';
 import DeviceFormScreen from './screens/DeviceFormScreen';  
 import ImageCaptureScreen from './screens/ImageCaptureScreen';
 import SuccessScreen from './screens/SuccessScreen';
+import AdminDashboard from './screens/AdminDashboard';
 
 const Stack = createStackNavigator();
 
@@ -47,6 +48,11 @@ export default function App() {
             name="Success" 
             component={SuccessScreen}
             options={{ title: 'Success' }}
+          />
+          <Stack.Screen 
+            name="AdminDashboard" 
+            component={AdminDashboard}
+            options={{ title: 'Admin Dashboard' }}
           />
         </Stack.Navigator>
       </NavigationContainer>

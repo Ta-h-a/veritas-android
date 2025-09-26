@@ -12,6 +12,10 @@ export default function SuccessScreen({ navigation }) {
     });
   };
 
+  const handleAdminDashboard = () => {
+    navigation.navigate('AdminDashboard');
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.content}>
@@ -25,6 +29,13 @@ export default function SuccessScreen({ navigation }) {
             title="Register Another Device" 
             onPress={handleStartOver}
             color="#4CAF50"
+          />
+        </View>
+        <View style={styles.buttonContainer}>
+          <Button 
+            title="📋 Admin Dashboard" 
+            onPress={handleAdminDashboard}
+            color="#FF9800"
           />
         </View>
       </View>
@@ -64,5 +75,6 @@ const styles = StyleSheet.create({
   buttonContainer: {
     width: '100%',
     maxWidth: 200,
+    marginBottom: 15,
   },
 });
