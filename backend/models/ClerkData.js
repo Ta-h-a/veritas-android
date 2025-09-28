@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 const mongooseEncryption = require("mongoose-encryption");
+const dotenv = require("dotenv");
+dotenv.config();
 
 const clerkDataSchema = new mongoose.Schema({
   clerk_id: { type: String, required: true },
