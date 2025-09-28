@@ -1,37 +1,71 @@
-//react-native/app/services/cryptoService.js
+import KnoxSdk from 'knox-sdk';
 
-import * as Crypto from 'expo-crypto';
-import * as SecureStore from 'expo-secure-store';
-// Assume RSA library is imported, but for simulation, use placeholders
+const stringify = (payload) =>
+  typeof payload === 'string' ? payload : JSON.stringify(payload);
 
-export const generateKeyPair = async () => {
-  // Generate RSA key pair
-  // Placeholder: in real implementation, use react-native-rsa-native
-  const privateKey = 'mock_private_key';
-  const publicKey = 'mock_public_key';
-  await SecureStore.setItemAsync('privateKey', privateKey);
-  return { privateKey, publicKey };
+export const encryptData = async (payload) => {
+  const input = stringify(payload);
+  return KnoxSdk.encryptData(input);
 };
 
-export const signData = async (data) => {
-  const privateKey = await SecureStore.getItemAsync('privateKey');
-  // Sign with RSA
-  // Placeholder
-  const signature = await Crypto.digestStringAsync(
-    Crypto.CryptoDigestAlgorithm.SHA256,
-    data + privateKey
-  );
-  return signature;
+export const decryptData = async (ciphertext) => {
+  const plaintext = await KnoxSdk.decryptData(ciphertext);
+  try {
+    return JSON.parse(plaintext);
+  } catch (error) {
+    return plaintext;
+  }
 };
 
-export const encryptData = async (data, publicKey) => {
-  // Encrypt with RSA
-  // Placeholder
-  return 'encrypted_' + data;
+export const signData = async (payload) => {
+  const input = stringify(payload);
+  return KnoxSdk.signData(input);
 };
 
-export const decryptData = async (encryptedData) => {
-  // Decrypt with RSA
-  // Placeholder
-  return encryptedData.replace('encrypted_', '');
+export const verifySignature = async (payload, signature) => {
+  const input = stringify(payload);
+  return KnoxSdk.verifySignature(input, signature);
+};
+
+export const getSecurityContext = async () => {
+  const [enabled, securityLevel, secureInfo, deviceId, fingerprint] = await Promise.all([
+    KnoxSdk.isKnoxEnabled(),
+    KnoxSdk.getSecurityLevel(),
+    KnoxSdk.getSecureDeviceInfo(),
+    KnoxSdk.getDeviceId(),
+    KnoxSdk.getDeviceFingerprint(),
+  ]);
+
+  return {
+    enabled,
+    securityLevel,
+    secureInfo,
+    deviceId,
+    fingerprint,
+    checkedAt: new Date().toISOString(),
+  };
+};
+
+export const ensureCompliance = async () => {
+  const context = await getSecurityContext();
+  const warnings = [];
+  const errors = [];
+
+  if (!context.enabled) {
+    warnings.push('Samsung Knox not available. Running in fallback mode.');
+  }
+
+  if (context.secureInfo?.rooted) {
+    errors.push('Device appears to be rooted.');
+  }
+
+  if (!context.secureInfo?.hardwareBackedKeystore) {
+    warnings.push('Hardware-backed keystore unavailable.');
+  }
+
+  return {
+    ...context,
+    warnings,
+    errors,
+  };
 };

@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "veritas-clean",
-    "slug": "veritas-clean",
+    "name": "knox-sdk-example",
+    "slug": "knox-sdk-example",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -14,7 +14,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.veritasclean"
+      "bundleIdentifier": "expo.modules.knoxsdk.example"
     },
     "android": {
       "adaptiveIcon": {
@@ -22,16 +22,11 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "permissions": [
-        "android.permission.CAMERA"
-      ],
-      "package": "com.anonymous.veritasclean"
+      "predictiveBackGestureEnabled": false,
+      "package": "expo.modules.knoxsdk.example"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    },
-    "plugins": [
-      "expo-barcode-scanner"
-    ]
+    }
   }
 }

@@ -1,6 +1,6 @@
 //react-native/app/screens/AdminLoginScreen.js
 
-import React, { useState } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { 
   View, 
   Text, 
@@ -12,13 +12,71 @@ import {
   KeyboardAvoidingView,
   Platform 
 } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
+import KnoxSdk from 'knox-sdk';
 import { loginAdmin } from '../services/authService';
+import SecurityLevelIndicator from '../components/SecurityLevelIndicator';
+import KnoxStatusBadge from '../components/KnoxStatusBadge';
+import useStore from '../services/store';
 
 export default function AdminLoginScreen({ navigation }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const {
+    knoxStatus,
+    deviceCompliance,
+    refreshKnoxStatus,
+    refreshAdminSession,
+    setAdminSession,
+    isAdminAuthenticated,
+  } = useStore((state) => ({
+    knoxStatus: state.knoxStatus,
+    deviceCompliance: state.deviceCompliance,
+    refreshKnoxStatus: state.refreshKnoxStatus,
+    refreshAdminSession: state.refreshAdminSession,
+    setAdminSession: state.setAdminSession,
+    isAdminAuthenticated: state.isAdminAuthenticated,
+  }));
+
+  useFocusEffect(
+    useCallback(() => {
+      let isActive = true;
+      (async () => {
+        try {
+          if (isActive) {
+            await refreshKnoxStatus();
+            const sessionStatus = await refreshAdminSession();
+            await KnoxSdk.logAuditEvent('ADMIN_LOGIN_VIEW', {
+              timestamp: new Date().toISOString(),
+              isAuthenticated: sessionStatus?.isAuthenticated ?? false,
+            });
+            if (sessionStatus?.isAuthenticated && navigation) {
+              navigation.replace('AdminDashboard');
+            }
+          }
+        } catch (error) {
+          // fallback to JS path
+        }
+      })();
+
+      return () => {
+        isActive = false;
+      };
+    }, [refreshKnoxStatus])
+  );
+
+  const warnings = useMemo(() => deviceCompliance?.warnings || [], [deviceCompliance]);
+  const errors = useMemo(() => deviceCompliance?.errors || [], [deviceCompliance]);
+  const hasBlockingIssues = errors.length > 0;
+  const complianceScore = useMemo(() => deviceCompliance?.score ?? 0, [deviceCompliance]);
+
+  useEffect(() => {
+    if (isAdminAuthenticated) {
+      navigation.replace('AdminDashboard');
+    }
+  }, [isAdminAuthenticated, navigation]);
 
   const handleLogin = async () => {
     if (!username.trim() || !password.trim()) {
@@ -26,11 +84,24 @@ export default function AdminLoginScreen({ navigation }) {
       return;
     }
 
+    if (hasBlockingIssues) {
+      Alert.alert(
+        'Security Requirements Not Met',
+        'This device does not meet the security baseline required for admin access.'
+      );
+      return;
+    }
+
     setLoading(true);
     try {
+      await KnoxSdk.logAuditEvent('ADMIN_LOGIN_ATTEMPT', {
+        timestamp: new Date().toISOString(),
+        username: username.trim(),
+      });
       const result = await loginAdmin(username.trim(), password);
       
       if (result.success) {
+        setAdminSession(result);
         Alert.alert('Success', 'Welcome back, Administrator!', [
           {
             text: 'Continue',
@@ -38,6 +109,7 @@ export default function AdminLoginScreen({ navigation }) {
           }
         ]);
       } else {
+        await refreshKnoxStatus();
         Alert.alert('Login Failed', result.message || 'Invalid credentials');
       }
     } catch (error) {
@@ -75,6 +147,40 @@ export default function AdminLoginScreen({ navigation }) {
 
         {/* Login Form */}
         <View style={styles.formSection}>
+          <KnoxStatusBadge
+            knoxEnabled={knoxStatus?.enabled}
+            securityLevel={knoxStatus?.securityLevel}
+            size="large"
+          />
+          <SecurityLevelIndicator
+            level={knoxStatus?.enabled ? knoxStatus.securityLevel : 'STANDARD'}
+            style={styles.securityIndicator}
+          />
+          <Text style={styles.securityMeta}>
+            Knox status: {knoxStatus?.enabled ? 'Verified' : 'Fallback mode'}
+          </Text>
+          <Text style={styles.securityMeta}>
+            Compliance score: {complianceScore}/100
+          </Text>
+
+          {(warnings.length > 0 || errors.length > 0) && (
+            <View style={[styles.callout, errors.length ? styles.errorCallout : styles.warningCallout]}>
+              <Text style={styles.calloutTitle}>
+                {errors.length ? 'Security Requirements Not Met' : 'Security Checks'}
+              </Text>
+              {errors.map((issue) => (
+                <Text key={`error-${issue}`} style={styles.calloutText}>
+                  • {issue}
+                </Text>
+              ))}
+              {warnings.map((issue) => (
+                <Text key={`warning-${issue}`} style={styles.calloutText}>
+                  • {issue}
+                </Text>
+              ))}
+            </View>
+          )}
+
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>Username</Text>
             <TextInput
@@ -115,7 +221,7 @@ export default function AdminLoginScreen({ navigation }) {
           <TouchableOpacity 
             style={[styles.loginButton, loading && styles.loginButtonDisabled]}
             onPress={handleLogin}
-            disabled={loading}
+            disabled={loading || hasBlockingIssues}
           >
             {loading ? (
               <ActivityIndicator color="#ffffff" size="small" />
@@ -187,6 +293,40 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     maxHeight: 400,
+  },
+  securityIndicator: {
+    alignSelf: 'flex-start',
+    marginBottom: 8,
+  },
+  securityMeta: {
+    fontSize: 12,
+    color: '#6b7280',
+    marginBottom: 12,
+  },
+  callout: {
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 20,
+  },
+  warningCallout: {
+    backgroundColor: '#fef9c3',
+    borderWidth: 1,
+    borderColor: '#fde68a',
+  },
+  errorCallout: {
+    backgroundColor: '#fee2e2',
+    borderWidth: 1,
+    borderColor: '#fecaca',
+  },
+  calloutTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    marginBottom: 8,
+    color: '#b91c1c',
+  },
+  calloutText: {
+    fontSize: 13,
+    color: '#374151',
   },
   inputContainer: {
     marginBottom: 20,

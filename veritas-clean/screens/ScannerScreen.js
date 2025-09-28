@@ -3,6 +3,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, Button, TextInput, StyleSheet, Alert, Dimensions, Animated } from 'react-native';
 import { CameraView, Camera } from 'expo-camera';
+import useKnox from '../hooks/useKnox';
+import { KnoxStatusBadge, SecurityLevelIndicator } from '../components/knox';
 
 const { width, height } = Dimensions.get('window');
 
@@ -13,6 +15,60 @@ export default function ScannerScreen({ navigation }) {
   const [isScanning, setIsScanning] = useState(false);
   const [scannedData, setScannedData] = useState(null);
   const [manualBarcode, setManualBarcode] = useState('');
+  const {
+    isKnoxEnabled,
+    securityLevel,
+    complianceScore,
+    warnings: knoxWarnings,
+    errors: knoxErrors,
+    logKnoxEvent,
+  } = useKnox();
+  const warnings = knoxWarnings || [];
+  const errors = knoxErrors || [];
+  const hasComplianceErrors = errors.length > 0;
+  const hasComplianceWarnings = !hasComplianceErrors && warnings.length > 0;
+
+  const renderComplianceBanner = (mode = 'default') => {
+    const isOverlay = mode === 'overlay';
+    const titleStyle = [styles.complianceBannerTitle, isOverlay && styles.complianceBannerTitleOverlay];
+    const textStyle = [styles.complianceBannerText, isOverlay && styles.complianceBannerTextOverlay];
+
+    if (hasComplianceErrors) {
+      return (
+        <View
+          style={[
+            styles.complianceBanner,
+            styles.complianceBannerError,
+            isOverlay && styles.complianceBannerOverlay,
+          ]}
+        >
+          <Text style={titleStyle}>Compliance required before scanning</Text>
+          <Text style={textStyle}>
+            Resolve {errors.length} critical Knox issue{errors.length > 1 ? 's' : ''} to restore full security.
+          </Text>
+        </View>
+      );
+    }
+
+    if (hasComplianceWarnings) {
+      return (
+        <View
+          style={[
+            styles.complianceBanner,
+            styles.complianceBannerWarning,
+            isOverlay && styles.complianceBannerOverlay,
+          ]}
+        >
+          <Text style={titleStyle}>Scanning in degraded mode</Text>
+          <Text style={textStyle}>
+            Knox detected {warnings.length} warning{warnings.length > 1 ? 's' : ''}. Review security posture soon.
+          </Text>
+        </View>
+      );
+    }
+
+    return null;
+  };
   
   // Animation refs
   const scanLineAnim = useRef(new Animated.Value(0)).current;
@@ -49,12 +105,24 @@ export default function ScannerScreen({ navigation }) {
     }
   }, [showCamera, isScanning, scanLineAnim]);
 
-  const handleBarCodeScanned = ({ type, data }) => {
+  const handleBarCodeScanned = async ({ type, data }) => {
     if (isScanning) return; // Prevent multiple scans
-    
+
     setIsScanning(true);
     setScannedData({ type, data });
-    
+
+    try {
+      await logKnoxEvent('BARCODE_SCAN_CAPTURED', {
+        barcodeType: type,
+        barcodeData: data,
+        knoxEnabled: isKnoxEnabled,
+        securityLevel,
+        complianceScore,
+      });
+    } catch (error) {
+      // Audit logging failures should not block scanning UX
+    }
+
     // Stop scan line animation and start pulse animation
     Animated.sequence([
       Animated.timing(pulseAnim, {
@@ -69,14 +137,13 @@ export default function ScannerScreen({ navigation }) {
       }),
     ]).start();
 
-    // Show success animation for 2 seconds
     setTimeout(() => {
       setScanned(true);
       setShowCamera(false);
       setIsScanning(false);
       setScannedData(null);
       pulseAnim.setValue(1);
-      
+
       Alert.alert(
         'Barcode Scanned Successfully',
         `Type: ${type}\nData: ${data}`,
@@ -97,7 +164,7 @@ export default function ScannerScreen({ navigation }) {
     }, 2500);
   };
 
-  const handleStartCamera = () => {
+  const handleStartCamera = async () => {
     if (hasPermission === null) {
       Alert.alert('Permission Required', 'Requesting camera permission...');
       return;
@@ -108,16 +175,30 @@ export default function ScannerScreen({ navigation }) {
         'Please enable camera access in your device settings to scan barcodes.',
         [{ text: 'OK' }]
       );
+      await logKnoxEvent('SCAN_SESSION_BLOCKED', {
+        reason: 'CAMERA_PERMISSION_DENIED',
+        knoxEnabled: isKnoxEnabled,
+      });
       return;
     }
     setScanned(false);
     setIsScanning(false);
     setScannedData(null);
     setShowCamera(true);
+    await logKnoxEvent('SCAN_SESSION_STARTED', {
+      knoxEnabled: isKnoxEnabled,
+      securityLevel,
+      complianceScore,
+    });
   };
 
   const handleManualEntry = () => {
     if (manualBarcode.trim()) {
+      logKnoxEvent('BARCODE_MANUAL_ENTRY', {
+        barcodeData: manualBarcode.trim(),
+        knoxEnabled: isKnoxEnabled,
+        securityLevel,
+      });
       navigation.navigate('DeviceForm', { barcode: manualBarcode.trim() });
     } else {
       Alert.alert('Error', 'Please enter a barcode');
@@ -125,6 +206,10 @@ export default function ScannerScreen({ navigation }) {
   };
 
   const handleTestBarcode = () => {
+    logKnoxEvent('BARCODE_TEST_USED', {
+      barcodeData: 'TEST123456789',
+      knoxEnabled: isKnoxEnabled,
+    });
     navigation.navigate('DeviceForm', { barcode: 'TEST123456789' });
   };
 
@@ -145,6 +230,13 @@ export default function ScannerScreen({ navigation }) {
           }}
         >
           <View style={styles.cameraOverlay}>
+            <View style={styles.knoxOverlayHeader}>
+              <KnoxStatusBadge knoxEnabled={isKnoxEnabled} securityLevel={securityLevel} size="small" />
+              <Text style={styles.knoxOverlayText}>
+                {isKnoxEnabled ? 'Scanning secured by Knox' : 'Standard scanning mode'}
+              </Text>
+              {renderComplianceBanner('overlay')}
+            </View>
             <Animated.View 
               style={[
                 styles.scanArea,
@@ -208,16 +300,20 @@ export default function ScannerScreen({ navigation }) {
             
             {!isScanning && (
               <View style={styles.cameraButtonContainer}>
-                <Button 
-                  title="Cancel" 
-                  onPress={() => setShowCamera(false)}
-                  color="#FF5722"
-                />
-                <Button 
-                  title="Enter Manually" 
-                  onPress={() => setShowCamera(false)}
-                  color="#2196F3"
-                />
+                <View style={styles.cameraButtonWrapper}>
+                  <Button 
+                    title="Cancel" 
+                    onPress={() => setShowCamera(false)}
+                    color="#FF5722"
+                  />
+                </View>
+                <View style={styles.cameraButtonWrapper}>
+                  <Button 
+                    title="Enter Manually" 
+                    onPress={() => setShowCamera(false)}
+                    color="#2196F3"
+                  />
+                </View>
               </View>
             )}
           </View>
@@ -228,6 +324,23 @@ export default function ScannerScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
+      <View style={styles.knoxHeader}>
+        <View style={styles.knoxHeaderRow}>
+          <KnoxStatusBadge knoxEnabled={isKnoxEnabled} securityLevel={securityLevel} size="small" />
+          <View style={styles.complianceScorePill}>
+            <Text style={styles.complianceScoreText}>Compliance {Math.round(complianceScore)}%</Text>
+          </View>
+        </View>
+        <View style={[styles.knoxHeaderRow, styles.knoxHeaderRowLast]}>
+          <SecurityLevelIndicator securityLevel={securityLevel} compact />
+          <Text style={styles.knoxHeaderSubtext}>
+            {isKnoxEnabled ? 'Scanning secured by Knox' : 'Standard scanning mode'}
+          </Text>
+        </View>
+      </View>
+
+      {renderComplianceBanner()}
+
       <Text style={styles.title}>Device Scanner</Text>
       
       <View style={styles.section}>
@@ -334,6 +447,87 @@ const styles = StyleSheet.create({
     backgroundColor: '#ddd',
     marginVertical: 15,
   },
+  knoxHeader: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+    marginBottom: 16,
+  },
+  knoxHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
+  knoxHeaderRowLast: {
+    marginBottom: 0,
+  },
+  knoxHeaderSubtext: {
+    fontSize: 12,
+    color: '#475569',
+    marginLeft: 12,
+    flex: 1,
+    textAlign: 'right',
+  },
+  complianceScorePill: {
+    marginLeft: 12,
+    backgroundColor: '#0ea5e9',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 999,
+  },
+  complianceScoreText: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: 12,
+  },
+  complianceBanner: {
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 16,
+  },
+  complianceBannerError: {
+    backgroundColor: 'rgba(239, 68, 68, 0.14)',
+    borderWidth: 1,
+    borderColor: 'rgba(239, 68, 68, 0.3)',
+  },
+  complianceBannerWarning: {
+    backgroundColor: 'rgba(234, 179, 8, 0.16)',
+    borderWidth: 1,
+    borderColor: 'rgba(234, 179, 8, 0.32)',
+  },
+  complianceBannerOverlay: {
+    backgroundColor: 'rgba(15, 23, 42, 0.65)',
+    borderColor: 'rgba(148, 163, 184, 0.4)',
+  },
+  complianceBannerTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#111827',
+    marginBottom: 4,
+  },
+  complianceBannerTitleOverlay: {
+    color: '#f8fafc',
+  },
+  complianceBannerText: {
+    fontSize: 12,
+    color: '#374151',
+  },
+  complianceBannerTextOverlay: {
+    color: '#e2e8f0',
+  },
+  knoxOverlayHeader: {
+    width: '100%',
+    alignItems: 'flex-start',
+    marginBottom: 16,
+  },
+  knoxOverlayText: {
+    color: '#e2e8f0',
+    fontSize: 12,
+    marginTop: 8,
+  },
   
   // Camera styles
   cameraContainer: {
@@ -347,6 +541,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.6)',
     justifyContent: 'space-between',
     alignItems: 'center',
+    paddingTop: 24,
+    paddingHorizontal: 20,
+    paddingBottom: 32,
   },
   scanArea: {
     width: 250,
@@ -472,6 +669,8 @@ const styles = StyleSheet.create({
     width: '100%',
     paddingHorizontal: 20,
     paddingBottom: 50,
-    gap: 20,
+  },
+  cameraButtonSpacer: {
+    width: 16,
   },
 });
