@@ -7,6 +7,7 @@ const multer = require("multer");
 const { Storage } = require("megajs");
 const path = require("path");
 const ClerkData = require("./models/ClerkData.js");
+const { handleTextExtraction } = require("./tesseractapi.js");
 
 const app = express();
 const upload = multer({ storage: multer.memoryStorage() });
@@ -111,6 +112,9 @@ app.post("/api/upload", upload.single("image"), async (req, res) => {
     });
   }
 });
+
+// Text extraction route using Tesseract.js
+app.post("/api/extract-text", upload.single("image"), handleTextExtraction);
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

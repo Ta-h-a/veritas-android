@@ -54,7 +54,7 @@ const AdminPanel = () => {
 
               {item.barcode_image && (
                 <img
-                  src={`data:image/png;base64,${item.barcode_image}`}
+                  src={item.barcode_image}
                   alt="Barcode"
                   className="w-full rounded-md mb-4 object-contain h-40"
                 />

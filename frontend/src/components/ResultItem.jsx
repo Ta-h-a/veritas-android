@@ -34,7 +34,11 @@ function ResultItem({ result }) {
 
   return (
     <div className={getTierClassName()}>
-      <div className={`${styles.barcodeCode} subheading`}>{result.code}</div>
+      <div className={`${styles.barcodeCode} subheading`}>
+        {result.isOcrOnly ? 'OCR Analysis Only' : 
+         result.isSubmittedResult ? 'Combined Analysis Result' : 
+         result.code}
+      </div>
       <div className={styles.barcodeMeta}>
         <div className={`${styles.metaItem} text`}>
           <span className={styles.metaLabel}>Format:</span>
@@ -44,15 +48,25 @@ function ResultItem({ result }) {
           <span className={styles.metaLabel}>Tier:</span>
           {result.priority.tier} ({result.priority.priority})
         </div>
+        {result.code && result.code !== 'N/A' && result.code !== 'No barcode detected' && (
+          <div className={`${styles.metaItem} text`}>
+            <span className={styles.metaLabel}>Barcode Number:</span>
+            {result.code}
+          </div>
+        )}
         <div className={`${styles.metaItem} text`}>
-          <span className={styles.metaLabel}>Confidence:</span>
-          {result.confidence}%
-        </div>
-        <div className={`${styles.metaItem} text`}>
-          <span className={styles.metaLabel}>Engine:</span>
-          ZXing MultiFormatReader
+          <span className={styles.metaLabel}>Analysis Engine:</span>
+          {result.isOcrOnly ? 'Tesseract OCR Only' : 
+           result.isSubmittedResult ? 'ZXing + Tesseract OCR' :
+           result.hasOcrData ? 'ZXing + OCR Combined' : 'ZXing MultiFormatReader'}
         </div>
       </div>
+      {result.extractedText && (
+        <div className={styles.extractedText}>
+          <div className={`${styles.metaLabel} text`}>Extracted Text (OCR):</div>
+          <div className={`${styles.textContent} text`}>{result.extractedText}</div>
+        </div>
+      )}
       {result.validation.messages.length > 0 && (
         <>
           <div className={styles.validationBadges}>

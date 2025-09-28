@@ -101,6 +101,26 @@
   color: #666;
 }
 
+.extractedText {
+  margin-top: 15px;
+  padding: 12px;
+  background: #f8fafc;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+}
+
+.textContent {
+  margin-top: 6px;
+  padding: 8px;
+  background: white;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: #374151;
+  border: 1px solid #e5e7eb;
+}
+
 @media (max-width: 640px) {
   .barcodeMeta {
     grid-template-columns: 1fr;
