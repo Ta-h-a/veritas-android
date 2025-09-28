@@ -117,5 +117,44 @@ app.post("/api/upload", upload.single("image"), async (req, res) => {
 // Text extraction route using Tesseract.js
 app.post("/api/extract-text", upload.single("image"), handleTextExtraction);
 
+// Update category, state, and city for a specific clerk document identified by clerk_id
+router.put("/api/update-info/:clerkId", async (req, res) => {
+  try {
+    const clerkId = req.params.clerkId;
+    const { category, state, city } = req.body;
+
+    // Validate inputs - all should be strings if provided
+    if (
+      (category && typeof category !== "string") ||
+      (state && typeof state !== "string") ||
+      (city && typeof city !== "string")
+    ) {
+      return res
+        .status(400)
+        .json({ error: "Category, state, and city must be strings" });
+    }
+
+    const updateFields = {};
+    if (category !== undefined) updateFields.category = category;
+    if (state !== undefined) updateFields.state = state;
+    if (city !== undefined) updateFields.city = city;
+
+    const updatedDoc = await ClerkData.findOneAndUpdate(
+      { clerk_id: clerkId },
+      updateFields,
+      { new: true }
+    );
+
+    if (!updatedDoc) {
+      return res.status(404).json({ error: "Clerk data not found" });
+    }
+
+    res.json({ message: "Information updated successfully", data: updatedDoc });
+  } catch (err) {
+    console.error("Error updating info:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

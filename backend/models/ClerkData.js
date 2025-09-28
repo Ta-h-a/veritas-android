@@ -9,6 +9,9 @@ const clerkDataSchema = new mongoose.Schema({
   barcode_number: { type: String, required: true },
   ocr_text: { type: String, required: true },
   barcode_image: { type: String }, // added field
+  category: { type: String, default: "" },
+  state: { type: String, default: "" },
+  city: { type: String, default: "" },
 });
 
 // set up encryption
@@ -23,6 +26,9 @@ clerkDataSchema.plugin(mongooseEncryption, {
     "barcode_number",
     "ocr_text",
     "barcode_image", // added for encryption
+    "category",
+    "state",
+    "city",
   ],
 });
 
