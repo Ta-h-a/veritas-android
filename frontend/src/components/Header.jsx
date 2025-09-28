@@ -4,7 +4,7 @@ import styles from "./Header.module.css";
 
 const SUPPORTED_FORMATS = [
   "EAN-13",
-  "Code-128", 
+  "Code-128",
   "QR Code",
   "Data Matrix",
   "UPC-A/E",
@@ -18,7 +18,7 @@ function Header() {
     <div className={styles.header}>
       <h1 className={`${styles.title} heading`}>
         <ScanLine className={styles.titleIcon} />
-        Samsung ZXing Image Scanner
+        Dex Veritas
       </h1>
       <div className={`${styles.techBadge} text`}>ZXing MultiFormatReader</div>
 
