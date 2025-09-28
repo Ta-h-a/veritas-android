@@ -1,6 +1,7 @@
 import React from "react";
 import { ScanLine, List } from "lucide-react";
 import styles from "./Header.module.css";
+import { UserButton } from "@clerk/clerk-react";
 
 const SUPPORTED_FORMATS = [
   "EAN-13",
@@ -16,10 +17,15 @@ const SUPPORTED_FORMATS = [
 function Header() {
   return (
     <div className={styles.header}>
-      <h1 className={`${styles.title} heading`}>
-        <ScanLine className={styles.titleIcon} />
-        Dex Veritas
-      </h1>
+      <div className={styles.headerTop}>
+        <h1 className={`${styles.title} heading`}>
+          <ScanLine className={styles.titleIcon} />
+          Dex Veritas
+        </h1>
+        <div className={styles.userSection}>
+          <UserButton />
+        </div>
+      </div>
       <div className={`${styles.techBadge} text`}>ZXing MultiFormatReader</div>
 
       <div className={styles.formatSupport}>

@@ -12,7 +12,8 @@ const { handleTextExtraction } = require("./tesseractapi.js");
 const app = express();
 const upload = multer({ storage: multer.memoryStorage() });
 
-app.use(express.json());
+app.use(express.json({ limit: "10mb" })); // increase limit as needed
+app.use(express.urlencoded({ limit: "10mb", extended: true }));
 app.use(cors());
 
 mongoose.connect(process.env.MONGO_URI, {

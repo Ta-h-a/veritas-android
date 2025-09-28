@@ -3,12 +3,24 @@
   border-radius: 16px;
   padding: 25px;
   margin-bottom: 25px;
-  text-align: center;
   box-shadow: var(--shadow-medium);
 }
 
+.headerTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.userSection {
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
 .title {
-  margin-bottom: 10px;
   background: var(--primary-gradient);
   -webkit-background-clip: text;
   background-clip: text;
@@ -18,6 +30,8 @@
   align-items: center;
   justify-content: center;
   gap: 10px;
+  margin: 0 auto; /* Center the title while allowing space for the user button */
+  padding: 0 40px; /* Add padding to prevent overlap with user button */
 }
 
 .titleIcon {
