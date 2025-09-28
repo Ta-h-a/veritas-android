@@ -8,7 +8,7 @@ const clerkDataSchema = new mongoose.Schema({
   clerk_email: { type: String, required: true },
   barcode_number: { type: String, required: true },
   ocr_text: { type: String, required: true },
-  barcode_image: { type: Buffer }, // added field
+  barcode_image: { type: String }, // added field
 });
 
 // set up encryption

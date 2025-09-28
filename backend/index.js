@@ -3,8 +3,13 @@ require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const multer = require("multer");
+const { Storage } = require("megajs");
+const path = require("path");
 const ClerkData = require("./models/ClerkData.js");
+
 const app = express();
+const upload = multer({ storage: multer.memoryStorage() });
 
 app.use(express.json());
 app.use(cors());
@@ -24,9 +29,7 @@ app.post("/api/clerkdata", async (req, res) => {
       clerk_email,
       barcode_number,
       ocr_text,
-      barcode_image: barcode_image
-        ? Buffer.from(barcode_image, "base64")
-        : undefined, // handle base64 image
+      barcode_image,
     });
     await entry.save();
     res.status(201).json({ success: true, id: entry._id });
@@ -39,13 +42,7 @@ app.post("/api/clerkdata", async (req, res) => {
 app.get("/api/admin/clerkdata", async (req, res) => {
   try {
     const allData = await ClerkData.find({});
-    const formattedData = allData.map((item) => ({
-      ...item.toObject(),
-      barcode_image: item.barcode_image
-        ? item.barcode_image.toString("base64")
-        : null,
-    }));
-    res.status(200).json(formattedData);
+    res.status(200).json(allData);
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
@@ -63,6 +60,55 @@ app.delete("/api/clerkdata/:id", async (req, res) => {
     res.json({ success: true, message: "Deleted successfully" });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// File upload route
+app.post("/api/upload", upload.single("image"), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: "No file uploaded" });
+    }
+
+    // Initialize MEGA storage
+    const storage = new Storage({
+      email: process.env.MEGA_EMAIL,
+      password: process.env.MEGA_PASSWORD,
+      allowUploadBuffering: true, // Enable upload buffering
+    });
+
+    // Connect to MEGA
+    await storage.ready;
+
+    // Generate unique filename
+    const fileExtension = path.extname(req.file.originalname);
+    const uniqueFilename = `${Date.now()}-${Math.random()
+      .toString(36)
+      .substring(7)}${fileExtension}`;
+
+    // Upload to MEGA
+    const uploadResult = await storage.upload({
+      name: uniqueFilename,
+      data: req.file.buffer,
+      size: req.file.size, // Specify the file size
+    }).complete; // Wait for upload to complete
+
+    // Create a public link
+    const file = await storage.getFile(uploadResult);
+    await file.setPublic(); // Make the file public
+    const publicLink = await storage.getFileLink(file);
+
+    res.json({
+      success: true,
+      imageUrl: publicLink,
+    });
+  } catch (err) {
+    console.error("Upload error:", err);
+    res.status(500).json({
+      success: false,
+      message: "Error uploading file",
+      error: err.message,
+    });
   }
 });
 
