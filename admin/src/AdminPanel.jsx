@@ -10,6 +10,9 @@ import {
   ImageIcon,
   AlertCircle,
   SearchSlash,
+  MapPin,
+  Building,
+  Tag,
 } from "lucide-react";
 
 const AdminPanel = () => {
@@ -57,7 +60,10 @@ const AdminPanel = () => {
         item.clerk_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.clerk_email.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.barcode_number.includes(searchTerm) ||
-        item.ocr_text.toLowerCase().includes(searchTerm.toLowerCase())
+        item.ocr_text.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (item.state && item.state.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (item.city && item.city.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (item.category && item.category.toLowerCase().includes(searchTerm.toLowerCase()))
     );
     setFilteredUploads(filtered);
   }, [searchTerm, uploads]);
@@ -135,10 +141,10 @@ const AdminPanel = () => {
               </div> */}
               <input
                 type="text"
-                placeholder="Search by ID, email, barcode, or text..."
+                placeholder="Search by ID, email, barcode, text, location, or category..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-4 pr-4 py-3 w-full md:w-80 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-white/90 backdrop-blur-sm shadow-sm"
+                className="pl-4 pr-4 py-3 w-full md:w-96 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-white/90 backdrop-blur-sm shadow-sm"
               />
             </div>
           </div>
@@ -306,6 +312,29 @@ const AdminPanel = () => {
                       </p>
                       <p className="text-sm text-gray-800 line-clamp-2">
                         {item.ocr_text}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Location Information */}
+                  <div className="flex items-center space-x-3 p-3 bg-blue-50/80 rounded-xl">
+                    <MapPin className="h-4 w-4 text-blue-500" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-gray-600">Location</p>
+                      <p className="text-sm text-gray-800">
+                        {item.state && item.city ? `${item.city}, ${item.state}` : 
+                         item.state || item.city || 'Not specified'}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Category Information */}
+                  <div className="flex items-center space-x-3 p-3 bg-purple-50/80 rounded-xl">
+                    <Tag className="h-4 w-4 text-purple-500" />
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">Category</p>
+                      <p className="text-sm text-gray-800 capitalize">
+                        {item.category ? item.category.replace(/-/g, ' ') : 'Not specified'}
                       </p>
                     </div>
                   </div>

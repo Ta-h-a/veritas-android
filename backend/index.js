@@ -24,7 +24,7 @@ mongoose.connect(process.env.MONGO_URI, {
 // Route 1: Add data (POST /api/clerkdata)
 app.post("/api/clerkdata", async (req, res) => {
   try {
-    const { clerk_id, clerk_email, barcode_number, ocr_text, barcode_image } =
+    const { clerk_id, clerk_email, barcode_number, ocr_text, barcode_image, state, city, category } =
       req.body;
     const entry = new ClerkData({
       clerk_id,
@@ -32,6 +32,9 @@ app.post("/api/clerkdata", async (req, res) => {
       barcode_number,
       ocr_text,
       barcode_image,
+      state,
+      city,
+      category,
     });
     await entry.save();
     res.status(201).json({ success: true, id: entry._id });
@@ -118,7 +121,7 @@ app.post("/api/upload", upload.single("image"), async (req, res) => {
 app.post("/api/extract-text", upload.single("image"), handleTextExtraction);
 
 // Update category, state, and city for a specific clerk document identified by clerk_id
-router.put("/api/update-info/:clerkId", async (req, res) => {
+app.put("/api/update-info/:clerkId", async (req, res) => {
   try {
     const clerkId = req.params.clerkId;
     const { category, state, city } = req.body;

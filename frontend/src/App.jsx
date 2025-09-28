@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useBarcodeScanner, useTesseract } from "./hooks";
 import { Header, StatsBar, ImageUploader, ResultsList } from "./components";
 import "./styles/global.css";
@@ -8,6 +8,11 @@ import { useUser } from "@clerk/clerk-react";
 function App() {
   const { user } = useUser();
   console.log(user);
+
+  // State management for location and category
+  const [selectedState, setSelectedState] = useState('');
+  const [selectedCity, setSelectedCity] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('');
   const {
     uploadedImage,
     uploadedFile,
@@ -37,6 +42,9 @@ function App() {
   const handleClearAll = () => {
     clearResults();
     clearTextData();
+    setSelectedState('');
+    setSelectedCity('');
+    setSelectedCategory('');
   };
 
   // Watch for ZXing temporary results and auto-populate barcode field
@@ -64,20 +72,26 @@ function App() {
     }
   };
 
-  const handleSubmitData = async (barcodeNum, ocrText) => {
+  const handleSubmitData = async (barcodeNum, ocrText, state, city, category) => {
     console.log("Submitted data:", {
       barcodeNumber: barcodeNum,
       extractedText: ocrText,
+      state: state,
+      city: city,
+      category: category,
     });
 
     try {
       // Prepare data for backend submission
       const submissionData = {
-        clerk_id: user.id, // Dummy clerk ID
-        clerk_email: user.primaryEmailAddress.emailAddress, // Dummy email
+        clerk_id: user.id, // Clerk ID from authentication
+        clerk_email: user.primaryEmailAddress.emailAddress, // Email from authentication
         barcode_number: barcodeNum || "",
         ocr_text: ocrText || "",
         barcode_image: uploadedImage || "", // The uploaded image data URL
+        state: state || "",
+        city: city || "",
+        category: category || "",
       };
 
       // Send request to backend
@@ -131,6 +145,13 @@ function App() {
         barcodeNumber={barcodeNumber}
         onBarcodeNumberChange={updateBarcodeNumber}
         onSubmitData={handleSubmitData}
+        // Location and category props
+        state={selectedState}
+        city={selectedCity}
+        category={selectedCategory}
+        onStateChange={setSelectedState}
+        onCityChange={setSelectedCity}
+        onCategoryChange={setSelectedCategory}
       />
       <ResultsList results={results} />
     </div>

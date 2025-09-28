@@ -177,6 +177,67 @@
   border-color: #c7d2fe;
 }
 
+/* Location and Category Input Styles */
+.locationCategorySection {
+  background: #f0f9ff;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  border: 1px solid #bae6fd;
+}
+
+.locationIcon {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+.icon {
+  width: 20px;
+  height: 20px;
+  color: #0284c7;
+}
+
+.locationTitle {
+  font-weight: 600;
+  color: #0c4a6e;
+}
+
+.inputsContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+.selectGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.selectLabel {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.selectInput {
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  background: white;
+  transition: border-color 0.3s ease;
+}
+
+.selectInput:focus {
+  outline: none;
+  border-color: #0284c7;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1);
+}
+
 /* Text Extraction Form Styles */
 .textExtractionForm {
   background: #f8fafc;
@@ -244,5 +305,14 @@
 
   .textExtractionForm {
     padding: 15px;
+  }
+
+  .locationCategorySection {
+    padding: 15px;
+  }
+
+  .inputsContainer {
+    grid-template-columns: 1fr;
+    gap: 12px;
   }
 }
