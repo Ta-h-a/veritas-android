@@ -1,4 +1,3 @@
-// models/ClerkData.js
 const mongoose = require("mongoose");
 const mongooseEncryption = require("mongoose-encryption");
 
@@ -7,6 +6,7 @@ const clerkDataSchema = new mongoose.Schema({
   clerk_email: { type: String, required: true },
   barcode_number: { type: String, required: true },
   ocr_text: { type: String, required: true },
+  barcode_image: { type: Buffer }, // added field
 });
 
 // set up encryption
@@ -15,7 +15,13 @@ const sigKey = Buffer.from(process.env.SIGNING_KEY, "base64");
 clerkDataSchema.plugin(mongooseEncryption, {
   encryptionKey: encKey,
   signingKey: sigKey,
-  encryptedFields: ["clerk_id", "clerk_email", "barcode_number", "ocr_text"],
+  encryptedFields: [
+    "clerk_id",
+    "clerk_email",
+    "barcode_number",
+    "ocr_text",
+    "barcode_image", // added for encryption
+  ],
 });
 
 module.exports = mongoose.model("ClerkData", clerkDataSchema);
