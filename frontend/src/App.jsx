@@ -61,20 +61,52 @@ function App() {
     }
   };
 
-  const handleSubmitData = (barcodeNum, ocrText) => {
+  const handleSubmitData = async (barcodeNum, ocrText) => {
     console.log('Submitted data:', {
       barcodeNumber: barcodeNum,
       extractedText: ocrText
     });
     
-    // Use the scanner hook function to add submitted result
-    addSubmittedResult(barcodeNum, ocrText);
-    
-    // Clear form data after successful submission
-    updateBarcodeNumber('');
-    updateExtractedText('');
-    
-    alert('Data submitted successfully!');
+    try {
+      // Prepare data for backend submission
+      const submissionData = {
+        clerk_id: 'dummy_clerk_123', // Dummy clerk ID
+        clerk_email: 'dummy@example.com', // Dummy email
+        barcode_number: barcodeNum || '',
+        ocr_text: ocrText || '',
+        barcode_image: uploadedImage || '' // The uploaded image data URL
+      };
+
+      // Send request to backend
+      const response = await fetch('http://localhost:8080/api/clerkdata', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(submissionData),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        console.log('Data saved to backend with ID:', result.id);
+        
+        // Use the scanner hook function to add submitted result to UI
+        addSubmittedResult(barcodeNum, ocrText);
+        
+        // Clear form data after successful submission
+        updateBarcodeNumber('');
+        updateExtractedText('');
+        
+        console.log('Data submitted and saved successfully!');
+      } else {
+        console.error('Backend save failed:', result.error);
+        console.error('Failed to save data to backend: ' + result.error);
+      }
+    } catch (error) {
+      console.error('Error submitting data to backend:', error);
+      console.error('Error submitting data: ' + error.message);
+    }
   };
 
   return (
