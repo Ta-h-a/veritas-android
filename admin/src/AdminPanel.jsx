@@ -26,6 +26,7 @@ const AdminPanel = () => {
   const [error, setError] = useState(null);
 
   const { user } = useUser();
+  console.log(user);
 
   // Fetch data from backend API
   useEffect(() => {
@@ -136,8 +137,20 @@ const AdminPanel = () => {
               <h1 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                 Dex Veritas Admin
               </h1>
-              <p className="text-gray-600 mt-1 font-bold">
-                Admin: {user.firstName} {user.lastName}
+              <p className="text-gray-600 mt-1">
+                <span className="font-bold">Admin: </span>
+                <span>
+                  {user.firstName} {user.lastName}
+                </span>
+              </p>
+              <p className="text-gray-600 mt-1">
+                <span className="font-bold">Last login: </span>
+                <span>
+                  {user.lastSignInAt.getHours()}:
+                  {user.lastSignInAt.getMinutes()}:
+                  {user.lastSignInAt.getSeconds()},{" "}
+                  {user.lastSignInAt.toLocaleDateString()}
+                </span>
               </p>
             </div>
 
