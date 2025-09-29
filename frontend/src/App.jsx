@@ -10,9 +10,9 @@ function App() {
   console.log(user);
 
   // State management for location and category
-  const [selectedState, setSelectedState] = useState('');
-  const [selectedCity, setSelectedCity] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedState, setSelectedState] = useState("");
+  const [selectedCity, setSelectedCity] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
   const {
     uploadedImage,
     uploadedFile,
@@ -42,9 +42,9 @@ function App() {
   const handleClearAll = () => {
     clearResults();
     clearTextData();
-    setSelectedState('');
-    setSelectedCity('');
-    setSelectedCategory('');
+    setSelectedState("");
+    setSelectedCity("");
+    setSelectedCategory("");
   };
 
   // Watch for ZXing temporary results and auto-populate barcode field
@@ -72,7 +72,13 @@ function App() {
     }
   };
 
-  const handleSubmitData = async (barcodeNum, ocrText, state, city, category) => {
+  const handleSubmitData = async (
+    barcodeNum,
+    ocrText,
+    state,
+    city,
+    category
+  ) => {
     console.log("Submitted data:", {
       barcodeNumber: barcodeNum,
       extractedText: ocrText,

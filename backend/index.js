@@ -24,8 +24,16 @@ mongoose.connect(process.env.MONGO_URI, {
 // Route 1: Add data (POST /api/clerkdata)
 app.post("/api/clerkdata", async (req, res) => {
   try {
-    const { clerk_id, clerk_email, barcode_number, ocr_text, barcode_image, state, city, category } =
-      req.body;
+    const {
+      clerk_id,
+      clerk_email,
+      barcode_number,
+      ocr_text,
+      barcode_image,
+      state,
+      city,
+      category,
+    } = req.body;
     const entry = new ClerkData({
       clerk_id,
       clerk_email,

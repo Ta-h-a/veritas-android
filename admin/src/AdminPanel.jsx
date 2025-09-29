@@ -15,6 +15,8 @@ import {
   Tag,
 } from "lucide-react";
 
+import { UserButton, useUser } from "@clerk/clerk-react";
+
 const AdminPanel = () => {
   const [uploads, setUploads] = useState([]);
   const [filteredUploads, setFilteredUploads] = useState([]);
@@ -22,6 +24,8 @@ const AdminPanel = () => {
   const [loading, setLoading] = useState(true);
   const [deleteLoading, setDeleteLoading] = useState(null);
   const [error, setError] = useState(null);
+
+  const { user } = useUser();
 
   // Fetch data from backend API
   useEffect(() => {
@@ -61,9 +65,12 @@ const AdminPanel = () => {
         item.clerk_email.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.barcode_number.includes(searchTerm) ||
         item.ocr_text.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (item.state && item.state.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (item.city && item.city.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (item.category && item.category.toLowerCase().includes(searchTerm.toLowerCase()))
+        (item.state &&
+          item.state.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (item.city &&
+          item.city.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (item.category &&
+          item.category.toLowerCase().includes(searchTerm.toLowerCase()))
     );
     setFilteredUploads(filtered);
   }, [searchTerm, uploads]);
@@ -129,13 +136,13 @@ const AdminPanel = () => {
               <h1 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                 Dex Veritas Admin
               </h1>
-              <p className="text-gray-600 mt-1">
-                Manage uploaded barcodes and OCR data
+              <p className="text-gray-600 mt-1 font-bold">
+                Admin: {user.firstName} {user.lastName}
               </p>
             </div>
 
             {/* Search Bar */}
-            <div className="relative">
+            <div className="relative flex flex-row items-center gap-4">
               {/* <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <Search className="h-5 w-5" />
               </div> */}
@@ -146,6 +153,7 @@ const AdminPanel = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-4 pr-4 py-3 w-full md:w-96 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-white/90 backdrop-blur-sm shadow-sm"
               />
+              <UserButton />
             </div>
           </div>
 
@@ -320,10 +328,13 @@ const AdminPanel = () => {
                   <div className="flex items-center space-x-3 p-3 bg-blue-50/80 rounded-xl">
                     <MapPin className="h-4 w-4 text-blue-500" />
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-600">Location</p>
+                      <p className="text-sm font-medium text-gray-600">
+                        Location
+                      </p>
                       <p className="text-sm text-gray-800">
-                        {item.state && item.city ? `${item.city}, ${item.state}` : 
-                         item.state || item.city || 'Not specified'}
+                        {item.state && item.city
+                          ? `${item.city}, ${item.state}`
+                          : item.state || item.city || "Not specified"}
                       </p>
                     </div>
                   </div>
@@ -332,9 +343,13 @@ const AdminPanel = () => {
                   <div className="flex items-center space-x-3 p-3 bg-purple-50/80 rounded-xl">
                     <Tag className="h-4 w-4 text-purple-500" />
                     <div>
-                      <p className="text-sm font-medium text-gray-600">Category</p>
+                      <p className="text-sm font-medium text-gray-600">
+                        Category
+                      </p>
                       <p className="text-sm text-gray-800 capitalize">
-                        {item.category ? item.category.replace(/-/g, ' ') : 'Not specified'}
+                        {item.category
+                          ? item.category.replace(/-/g, " ")
+                          : "Not specified"}
                       </p>
                     </div>
                   </div>
