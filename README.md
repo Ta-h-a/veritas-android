@@ -1,14 +1,14 @@
 # Veritas Android - Comprehensive Barcode Scanning & OCR Platform
 
-![Veritas Android](https://img.shields.io/badge/Platform-Multi--Platform-blue)
-![License](https://img.shields.io/badge/License-Private-red)
-![Version](https://img.shields.io/badge/Version-1.0-green)
+![Team](https://img.shields.io/badge/Team-DexVeritas-red)
+![Hackathon](https://img.shields.io/badge/Hackathon-Samsung%20PRISM%202025-blue)
+![Veritas Android](https://img.shields.io/badge/Platform-Multi--Platform-neon)
 
 ## Overview
 
 Veritas Android is a comprehensive multi-platform solution for barcode scanning, optical character recognition (OCR), and product verification. The platform combines advanced scanning technologies with secure data management, providing end-to-end solutions for retail, manufacturing, supply chain, and administrative workflows.
 
-## 🚀 Key Features
+## Key Features
 
 ### Core Capabilities
 
@@ -16,7 +16,6 @@ Veritas Android is a comprehensive multi-platform solution for barcode scanning,
 - **Advanced OCR Processing**: Tesseract and OpenCV-based text extraction with confidence scoring
 - **Real-time Analysis**: Simultaneous barcode detection and text extraction
 - **Secure Authentication**: Clerk-based user management with role-based access control
-- **Cloud Storage Integration**: MEGA storage for secure file management
 - **Location Management**: Comprehensive Indian state and city selection
 - **Category Classification**: Product workflow categorization and tracking
 
@@ -27,9 +26,8 @@ Veritas Android is a comprehensive multi-platform solution for barcode scanning,
 - **Admin Dashboard**: Administrative panel for user and data management
 - **Backend API**: Node.js/Express server with MongoDB integration
 - **Flask Scanner**: Python-based OCR and specialized scanning interfaces
-- **Android Native**: Native Android application for enhanced device integration
 
-## 🏗 Architecture
+## Architecture
 
 The Veritas platform consists of multiple interconnected modules:
 
@@ -40,11 +38,10 @@ veritas-android/
 ├── backend/           # Node.js API server
 ├── react-native/      # Cross-platform mobile app
 ├── jsscanner/         # Flask-based OCR and scanning
-├── android/           # Native Android application
 └── api/               # Additional API services
 ```
 
-## 📚 Module Documentation
+## Module Documentation
 
 ### Frontend Applications
 
@@ -54,14 +51,14 @@ veritas-android/
 
 ### Backend Services
 
-- **[Backend API](./backend/README.md)** - Node.js server with MongoDB, MEGA storage, and Tesseract OCR
+- **[Backend API](./backend/README.md)** - Node.js server with MongoDB, and Tesseract OCR
 - **[JavaScript Scanner](./jsscanner/README.md)** - Flask-based OCR application with multiple scanning interfaces
 
 ### Specialized Documentation
 
 - **[Samsung Scanner Guide](./jsscanner/samsung-barcode-scanner-app-guide.md)** - Samsung Electronics India-specific implementation guide
 
-## 🛠 Technology Stack
+## Technology Stack
 
 ### Frontend Technologies
 
@@ -84,7 +81,7 @@ veritas-android/
 - **JWT Authentication** for secure API access
 - **Native camera integration** for scanning
 
-## 🚦 Quick Start
+## Quick Start
 
 ### Prerequisites
 
@@ -92,7 +89,7 @@ veritas-android/
 - Python 3.8+
 - MongoDB 5.0+
 - Tesseract OCR engine
-- Android Studio (for Android development)
+- Android Studio (for application development)
 
 ### Installation
 
@@ -146,35 +143,36 @@ veritas-android/
 - Backend API: `http://localhost:8080`
 - Flask Scanner: `http://localhost:5005`
 
-## 🔧 Configuration
-
-### Environment Variables
-
-Each module requires specific environment configuration:
+## Environment Configuration
 
 **Backend (.env)**
 
 ```env
 PORT=8080
 MONGO_URI=your_mongodb_connection_string
-MEGA_EMAIL=your_mega_account_email
-MEGA_PASSWORD=your_mega_account_password
 ```
 
-**Frontend/Admin (.env)**
+**Frontend (.env)**
 
 ```env
 VITE_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
 VITE_BACKEND_URL=http://localhost:8080
 ```
 
-## 📱 Supported Platforms
+**Admin (.env)**
+
+```env
+VITE_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
+VITE_BACKEND_URL=http://localhost:8080
+```
+
+## Supported Platforms
 
 - **Web Browsers**: Chrome 90+, Firefox 88+, Safari 14+, Edge 90+
 - **Mobile Devices**: iOS 12+, Android 6.0+
 - **Desktop**: Windows 10+, macOS 10.15+, Linux (Ubuntu 18.04+)
 
-## 🎯 Use Cases
+## Use Cases
 
 ### Retail & E-commerce
 
@@ -197,14 +195,14 @@ VITE_BACKEND_URL=http://localhost:8080
 - System monitoring and maintenance
 - Compliance and audit trails
 
-## 🔒 Security Features
+## Security Features
 
 - **Data Encryption**: Mongoose encryption for sensitive database records
 - **Secure Authentication**: Clerk-based user management with JWT tokens
 - **API Security**: CORS protection and input validation
 - **Role-based Access**: Granular permissions for different user types
 
-## 📊 Performance Metrics
+## Performance Metrics
 
 - **Scan Speed**: <2 seconds per barcode
 - **OCR Accuracy**: >95% for clear text images
@@ -212,7 +210,7 @@ VITE_BACKEND_URL=http://localhost:8080
 - **Uptime**: 99.9% availability target
 - **Storage**: Scalable cloud storage with MEGA integration
 
-## 🤝 Contributing
+## Contributing
 
 We welcome contributions to the Veritas platform! Please follow these guidelines:
 
@@ -234,34 +232,13 @@ We welcome contributions to the Veritas platform! Please follow these guidelines
 - Write clear, maintainable code
 - Add appropriate comments and documentation
 
-## 📄 License
-
-This project is proprietary software developed for Samsung Electronics India and related partners. All rights reserved.
-
-## 🆘 Support
+## Support
 
 For technical support and questions:
 
 - **Issues**: Open a GitHub issue for bug reports and feature requests
 - **Documentation**: Refer to module-specific README files for detailed setup
 - **Contact**: Development team via repository discussions
-
-## 📈 Roadmap
-
-### Version 2.0 (Planned)
-
-- Enhanced AI-powered barcode recognition
-- Blockchain-based product authenticity verification
-- Advanced analytics and reporting dashboard
-- IoT device integration with Samsung SmartThings
-- Multi-language support for global markets
-
-### Version 1.5 (In Progress)
-
-- Performance optimizations and caching
-- Enhanced mobile app features
-- Additional barcode format support
-- Improved OCR accuracy and preprocessing
 
 ---
 
