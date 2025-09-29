@@ -7,7 +7,7 @@ import { useUser } from "@clerk/clerk-react";
 
 function App() {
   const { user } = useUser();
-  console.log(user);
+  const backend_url = import.meta.env.VITE_BACKEND_URL;
 
   // State management for location and category
   const [selectedState, setSelectedState] = useState("");
@@ -101,7 +101,7 @@ function App() {
       };
 
       // Send request to backend
-      const response = await fetch("http://localhost:8080/api/clerkdata", {
+      const response = await fetch(backend_url + "/api/clerkdata", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

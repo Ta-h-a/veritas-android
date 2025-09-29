@@ -24,18 +24,15 @@ const AdminPanel = () => {
   const [loading, setLoading] = useState(true);
   const [deleteLoading, setDeleteLoading] = useState(null);
   const [error, setError] = useState(null);
-
   const { user } = useUser();
-  console.log(user);
+  const backend_url = import.meta.env.VITE_BACKEND_URL;
 
   // Fetch data from backend API
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await fetch(
-          "http://localhost:8080/api/admin/clerkdata"
-        );
+        const response = await fetch(backend_url + "/api/admin/clerkdata");
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -85,15 +82,12 @@ const AdminPanel = () => {
     ) {
       setDeleteLoading(id);
       try {
-        const response = await fetch(
-          `http://localhost:8080/api/clerkdata/${id}`,
-          {
-            method: "DELETE",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
+        const response = await fetch(backend_url + `/api/clerkdata/${id}`, {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
