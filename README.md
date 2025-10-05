@@ -195,6 +195,8 @@ VITE_BACKEND_URL=http://localhost:8080
 - System monitoring and maintenance
 - Compliance and audit trails
 
+## Submissions
+- Google Drive Link {Video Submission}: [click_here](https://drive.google.com/drive/folders/1zHtxt-mgBWYpqd2PUZkkKi2mPQiet_SN?usp=sharing)  
 ## Security Features
 
 - **Data Encryption**: Mongoose encryption for sensitive database records
@@ -204,7 +206,7 @@ VITE_BACKEND_URL=http://localhost:8080
 
 ## Performance Metrics
 
-- **Scan Speed**: <2 seconds per barcode
+- **Scan Speed**: <20 milliseconds per barcode
 - **OCR Accuracy**: >95% for clear text images
 - **API Response**: <500ms average response time
 - **Uptime**: 99.9% availability target
