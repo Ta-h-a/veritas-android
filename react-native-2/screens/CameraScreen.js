@@ -42,8 +42,10 @@ export default function CameraScreen({ navigation }) {
 
     try {
       // Capture photo of the barcode
-      if (cameraRef.current) {
-        const photo = await cameraRef.current.takePictureAsync({
+      const camera = cameraRef.current;
+
+      if (camera && typeof camera.takePictureAsync === 'function') {
+        const photo = await camera.takePictureAsync({
           quality: 0.8,
         });
 
@@ -68,6 +70,11 @@ export default function CameraScreen({ navigation }) {
             imageUri: photo.uri,
           });
         }
+      } else {
+        console.warn('Camera reference is unavailable or capture is not supported.');
+        Alert.alert('Camera unavailable', 'Unable to capture an image from the camera.');
+        setScannedData(null);
+        return;
       }
     } catch (error) {
       console.error('Error processing barcode:', error);
@@ -189,19 +196,19 @@ export default function CameraScreen({ navigation }) {
             barcodeScannerSettings={{
               barCodeTypes: ['qr', 'ean13', 'ean8', 'code128', 'code39'],
             }}
-          >
-            <View style={styles.overlay}>
-              <View style={styles.scanArea}>
-                <View style={styles.corner} style={[styles.corner, styles.topLeft]} />
-                <View style={styles.corner} style={[styles.corner, styles.topRight]} />
-                <View style={styles.corner} style={[styles.corner, styles.bottomLeft]} />
-                <View style={styles.corner} style={[styles.corner, styles.bottomRight]} />
-              </View>
-              <Text style={styles.scanText}>
-                {isProcessing ? 'Processing...' : 'Align barcode within the frame'}
-              </Text>
+          />
+
+          <View pointerEvents="none" style={styles.overlay}>
+            <View style={styles.scanArea}>
+              <View style={[styles.corner, styles.topLeft]} />
+              <View style={[styles.corner, styles.topRight]} />
+              <View style={[styles.corner, styles.bottomLeft]} />
+              <View style={[styles.corner, styles.bottomRight]} />
             </View>
-          </CameraView>
+            <Text style={styles.scanText}>
+              {isProcessing ? 'Processing...' : 'Align barcode within the frame'}
+            </Text>
+          </View>
         </View>
       ) : (
         <View style={styles.formContainer}>
@@ -296,12 +303,13 @@ const styles = StyleSheet.create({
   },
   cameraContainer: {
     flex: 1,
+    position: 'relative',
   },
   camera: {
     flex: 1,
   },
   overlay: {
-    flex: 1,
+    ...StyleSheet.absoluteFillObject,
     backgroundColor: 'transparent',
     justifyContent: 'center',
     alignItems: 'center',

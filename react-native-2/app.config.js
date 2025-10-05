@@ -6,10 +6,10 @@ export default ({ config }) => ({
   version: "1.0.0",
   scheme: "veritas",
   orientation: "portrait",
-  icon: "./assets/icon.png",
+  icon: "./assets/images/icon.png",
   userInterfaceStyle: "light",
   splash: {
-    image: "./assets/splash.png",
+    image: "./assets/images/splash-icon.png",
     resizeMode: "contain",
     backgroundColor: "#6200ee"
   },
@@ -22,8 +22,8 @@ export default ({ config }) => ({
   },
   android: {
     adaptiveIcon: {
-      foregroundImage: "./assets/adaptive-icon.png",
-      backgroundColor: "#6200ee"
+  foregroundImage: "./assets/images/android-icon-foreground.png",
+      backgroundImage: "./assets/images/android-icon-background.png"
     },
     package: "com.veritas.mobile",
     permissions: [
@@ -33,7 +33,7 @@ export default ({ config }) => ({
     ]
   },
   web: {
-    favicon: "./assets/favicon.png"
+    favicon: "./assets/images/favicon.png"
   },
   plugins: [
     [

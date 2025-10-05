@@ -17,7 +17,43 @@ app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ limit: "10mb", extended: true }));
 app.use(cors());
 
-mongoose.connect(process.env.MONGO_URI);
+const MONGO_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/veritas";
+const MONGO_RETRY_DELAY_MS = Number(process.env.MONGO_RETRY_DELAY_MS || 5000);
+const MONGO_MAX_RETRIES = Number(process.env.MONGO_MAX_RETRIES || 0); // 0 = infinite
+
+async function wait(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function connectToDatabase() {
+  let attempt = 1;
+  while (true) {
+    try {
+      await mongoose.connect(MONGO_URI, {
+        serverSelectionTimeoutMS: Number(process.env.MONGO_SERVER_SELECTION_TIMEOUT_MS || 5000),
+      });
+      console.log("Connected to MongoDB");
+      break;
+    } catch (error) {
+      const nextAttempt = attempt + 1;
+      console.error(
+        `[MongoDB] Connection attempt ${attempt} failed: ${error.message}`
+      );
+      if (MONGO_MAX_RETRIES > 0 && attempt >= MONGO_MAX_RETRIES) {
+        throw new Error(
+          "MongoDB connection failed after maximum retry attempts. Ensure MongoDB is running or update MONGO_URI."
+        );
+      }
+
+      console.log(
+        `Retrying in ${MONGO_RETRY_DELAY_MS / 1000}s... (run \`docker compose up -d\` inside backend/ to start a local MongoDB instance)`
+      );
+
+      attempt = nextAttempt;
+      await wait(MONGO_RETRY_DELAY_MS);
+    }
+  }
+}
 
 // Middleware to validate client encryption
 const validateClientEncryption = (req, res, next) => {
@@ -390,4 +426,12 @@ app.get("/health", (req, res) => {
 });
 
 const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+connectToDatabase()
+  .then(() => {
+    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  })
+  .catch((error) => {
+    console.error("Failed to start server:", error.message);
+    process.exit(1);
+  });

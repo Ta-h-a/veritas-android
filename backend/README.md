@@ -20,6 +20,17 @@ Before you begin, ensure you have installed:
 - MongoDB (v5.0 or higher)
 - Tesseract OCR engine (for OCR functionality)
 
+> **Quick start with Docker**
+>
+> If you don't have MongoDB installed locally, you can launch a development instance using Docker:
+> 
+> ```bash
+> cd backend
+> docker compose up -d
+> ```
+>
+> This spins up a MongoDB container (available on `mongodb://localhost:27017`) and an optional Mongo Express UI at http://localhost:8081. The default credentials are `admin` / `admin123`.
+
 ## Project Setup
 
 1. Clone the repository:
@@ -35,11 +46,11 @@ cd veritas-android/backend
 npm install
 ```
 
-3. Create a `.env` file in the root directory with the following variables:
+3. Create a `.env` file in the root directory with the following variables (the defaults below match the provided Docker setup):
 
 ```env
 PORT=8080
-MONGO_URI=your_mongodb_connection_string
+MONGO_URI=mongodb://admin:admin123@localhost:27017/veritas?authSource=admin
 MEGA_EMAIL=your_mega_account_email
 MEGA_PASSWORD=your_mega_account_password
 ```
@@ -49,6 +60,8 @@ MEGA_PASSWORD=your_mega_account_password
 ```bash
 node index.js
 ```
+
+The server waits for MongoDB to be reachable before accepting requests. If the database is offline, you'll see a clear error message instructing you to start MongoDB (or run `docker compose up`).
 
 ## API Endpoints
 

@@ -1,11 +1,44 @@
 // services/api.js
 import axios from 'axios';
+import Constants from 'expo-constants';
+import { Platform } from 'react-native';
 import { encryptData, decryptData } from '../../react-native-2/utils/encryption';
-import * as Constants from 'expo-constants';
 
-// Get API URL from environment or use default
-const API_BASE_URL = Constants.default?.expoConfig?.extra?.apiUrl || 'http://localhost:8080';
-const CLIENT_ENCRYPTION_KEY = Constants.default?.expoConfig?.extra?.clientEncryptionKey;
+const getExpoExtra = () => {
+  const expoConfig = Constants?.expoConfig ?? Constants?.manifest ?? {};
+  return expoConfig?.extra ?? {};
+};
+
+const resolveApiBaseUrl = () => {
+  const extra = getExpoExtra();
+  const envUrl = process.env.EXPO_PUBLIC_API_URL ?? extra.apiUrl;
+
+  if (envUrl && envUrl.length > 0) {
+    return envUrl;
+  }
+
+  if (Platform.OS === 'android') {
+    return 'http://10.0.2.2:8080';
+  }
+
+  return 'http://localhost:8080';
+};
+
+const resolveClientKey = () => {
+  const extra = getExpoExtra();
+  return process.env.EXPO_PUBLIC_CLIENT_ENCRYPTION_KEY ?? extra.clientEncryptionKey;
+};
+
+const API_BASE_URL = resolveApiBaseUrl();
+const CLIENT_ENCRYPTION_KEY = resolveClientKey();
+
+const requireClientKey = () => {
+  if (!CLIENT_ENCRYPTION_KEY) {
+    throw new Error('Client encryption key is not configured. Check your Expo env settings.');
+  }
+
+  return CLIENT_ENCRYPTION_KEY;
+};
 
 class ApiService {
   constructor() {
@@ -47,18 +80,13 @@ class ApiService {
   async submitClerkData(clerkData) {
     try {
       // Encrypt data before sending
-      const encrypted = await encryptData(clerkData, CLIENT_ENCRYPTION_KEY);
+  const encrypted = await encryptData(clerkData, requireClientKey());
 
       const response = await this.client.post('/api/clerkdata/secure', encrypted);
 
       // Decrypt response
       const { encryptedPayload, iv, authTag } = response.data;
-      const decrypted = await decryptData(
-        encryptedPayload,
-        iv,
-        authTag,
-        CLIENT_ENCRYPTION_KEY
-      );
+      const decrypted = await decryptData(encryptedPayload, iv, authTag, requireClientKey());
 
       return decrypted;
     } catch (error) {
@@ -78,12 +106,7 @@ class ApiService {
 
       // Decrypt response
       const { encryptedPayload, iv, authTag } = response.data;
-      const decrypted = await decryptData(
-        encryptedPayload,
-        iv,
-        authTag,
-        CLIENT_ENCRYPTION_KEY
-      );
+      const decrypted = await decryptData(encryptedPayload, iv, authTag, requireClientKey());
 
       return decrypted.data;
     } catch (error) {
@@ -103,12 +126,7 @@ class ApiService {
 
       // Decrypt response
       const { encryptedPayload, iv, authTag } = response.data;
-      const decrypted = await decryptData(
-        encryptedPayload,
-        iv,
-        authTag,
-        CLIENT_ENCRYPTION_KEY
-      );
+      const decrypted = await decryptData(encryptedPayload, iv, authTag, requireClientKey());
 
       return decrypted.data;
     } catch (error) {

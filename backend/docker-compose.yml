@@ -1,0 +1,40 @@
+version: "3.8"
+
+services:
+  mongo:
+    image: mongo:6.0
+    container_name: veritas-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin123
+      MONGO_INITDB_DATABASE: veritas
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - veritas-backend
+
+  mongo-express:
+    image: mongo-express:1.0.0-alpha.4
+    container_name: veritas-mongo-express
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: admin
+      ME_CONFIG_MONGODB_ADMINPASSWORD: admin123
+      ME_CONFIG_MONGODB_SERVER: mongo
+      ME_CONFIG_MONGODB_PORT: 27017
+    depends_on:
+      - mongo
+    networks:
+      - veritas-backend
+
+volumes:
+  mongo-data:
+
+networks:
+  veritas-backend:
+    driver: bridge
